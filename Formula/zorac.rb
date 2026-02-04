@@ -7,6 +7,9 @@ class Zorac < Formula
 
   depends_on "python@3.13"
 
+  # Skip relinking of native extensions in the venv (jiter, etc.)
+  skip_clean "libexec"
+
   def install
     python = Formula["python@3.13"].opt_bin/"python3.13"
 
