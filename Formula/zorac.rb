@@ -1,8 +1,8 @@
 class Zorac < Formula
   desc "Self-hosted local LLM chat client for vLLM inference servers"
   homepage "https://github.com/chris-colinsky/zorac"
-  url "https://files.pythonhosted.org/packages/41/95/819b307893db0c3e95c482cc00fd9ac6b69f49f73a1f98e097703446c206/zorac-1.3.0.tar.gz"
-  sha256 "af7da50af668784073474a1cfcc7ba37a2a4ea288a1bce9ed3ad37306ade36ee"
+  url "https://files.pythonhosted.org/packages/8f/67/28de9fe16b8869795f43b36eb256cbd93324e553c26997ce3e39305177ac/zorac-1.3.1.tar.gz"
+  sha256 "165c097b2e1bc1e1e30501e68938b2a91c27f9e68790814703848506204909c3"
   license "MIT"
 
   depends_on "python@3.13"
@@ -14,7 +14,7 @@ class Zorac < Formula
 
     system python, "-m", "venv", libexec
     system libexec/"bin/pip", "install", "--upgrade", "pip"
-    system libexec/"bin/pip", "install", "zorac==1.3.0"
+    system libexec/"bin/pip", "install", "zorac==1.3.1"
 
     (bin/"zorac").write <<~EOS
       #!/bin/bash
