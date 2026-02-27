@@ -1,0 +1,97 @@
+name: Build and Publish Bottles
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Formula/zorac.rb
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build bottle on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-13]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Extract version and root URL
+        id: meta
+        run: |
+          VERSION=$(grep -oP '(?<=zorac-)\d+\.\d+\.\d+(?=\.tar\.gz)' Formula/zorac.rb | head -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "root_url=https://github.com/${{ github.repository }}/releases/download/zorac-$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Tap formula from local checkout
+        run: brew tap chris-colinsky/zorac "$(pwd)"
+
+      - name: Install for bottling
+        run: brew install --build-bottle chris-colinsky/zorac/zorac
+
+      - name: Create bottle
+        run: |
+          brew bottle \
+            --json \
+            --root-url="${{ steps.meta.outputs.root_url }}" \
+            chris-colinsky/zorac/zorac
+
+      - name: Upload bottle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bottles-${{ matrix.os }}
+          path: |
+            *.bottle.tar.gz
+            *.bottle.json
+
+  publish:
+    name: Publish bottles and update formula
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download all bottles
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: bottles/
+
+      - name: Extract version
+        id: meta
+        run: |
+          VERSION=$(grep -oP '(?<=zorac-)\d+\.\d+\.\d+(?=\.tar\.gz)' Formula/zorac.rb | head -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create release and upload bottles
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: zorac-${{ steps.meta.outputs.version }}
+          name: "Bottles for zorac ${{ steps.meta.outputs.version }}"
+          files: bottles/*.bottle.tar.gz
+          make_latest: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update formula with bottle block
+        run: python3 .github/scripts/update_bottle_block.py bottles/ Formula/zorac.rb
+
+      - name: Commit updated formula
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/zorac.rb
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git pull --rebase origin main
+          git commit -m "bottles: add ${{ steps.meta.outputs.version }} [skip ci]"
+          git push

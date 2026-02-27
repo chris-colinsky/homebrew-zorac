@@ -9,17 +9,11 @@ class Zorac < Formula
 
   skip_clean "libexec"
 
-  def relocatable?
-    false
-  end
-
   def install
     python = Formula["python@3.13"].opt_bin/"python3.13"
 
     system python, "-m", "venv", libexec
     system libexec/"bin/pip", "install", "--upgrade", "pip"
-    
-    # We install normally; pip handles the heavy lifting
     system libexec/"bin/pip", "install", "zorac==1.4.0"
 
     (bin/"zorac").write <<~EOS
