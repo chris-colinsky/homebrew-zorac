@@ -16,6 +16,14 @@ class Zorac < Formula
     system libexec/"bin/pip", "install", "--upgrade", "pip"
     system libexec/"bin/pip", "install", "zorac==1.4.0"
 
+    # Some pip wheels (e.g. jiter from openai) lack -headerpad_max_install_names,
+    # so Homebrew's relocation step fails trying to rewrite their @rpath dylib IDs
+    # to long absolute paths. Changing the ID to just the filename is safe for
+    # Python extension modules, which are loaded by file path, not dylib ID.
+    libexec.glob("lib/python3.13/site-packages/**/*.so") do |so|
+      system "install_name_tool", "-id", so.basename.to_s, so
+    end
+
     (bin/"zorac").write <<~EOS
       #!/bin/bash
       exec "#{libexec}/bin/zorac" "$@"
