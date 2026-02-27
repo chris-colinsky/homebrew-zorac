@@ -5,6 +5,12 @@ class Zorac < Formula
   sha256 "185a8c82ab9776d98cb821f93746765aaee2a5217b36534a83b6c3c968ec245d"
   license "MIT"
 
+  bottle do
+    root_url "https://github.com/chris-colinsky/homebrew-zorac/releases/download/zorac-"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "8b20e13911e8919ad68e2fa28c9b50a313e763c2bc8aa58e7b2406c343a60a24"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "cb85117e62eddf8ff41011d654d20234782fd0f42a568f90e5b5b8928294d51d"
+  end
+
   depends_on "python@3.13"
   depends_on "rust" => :build
 
