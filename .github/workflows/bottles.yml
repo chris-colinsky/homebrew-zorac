@@ -28,6 +28,17 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "root_url=https://github.com/${{ github.repository }}/releases/download/zorac-$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Strip bottle block from formula before building
+        run: |
+          python3 -c "
+          import re
+          path = 'Formula/zorac.rb'
+          formula = open(path).read()
+          formula = re.sub(r'\n  bottle do\n(?:.*\n)*?  end\n', '\n', formula)
+          open(path, 'w').write(formula)
+          "
+          cp Formula/zorac.rb "$(brew --repo chris-colinsky/zorac)/Formula/zorac.rb" || true
+
       - name: Install for bottling
         run: brew install --build-bottle chris-colinsky/zorac/zorac
 
@@ -45,8 +56,8 @@ jobs:
         with:
           name: bottles-${{ matrix.os }}
           path: |
-            *.bottle.tar.gz
-            *.bottle.json
+            *.bottle*.tar.gz
+            *.bottle*.json
 
   publish:
     name: Publish bottles and update formula
@@ -66,12 +77,6 @@ jobs:
           merge-multiple: true
           path: bottles/
 
-      - name: List downloaded bottles
-        run: |
-          echo "--- Contents of bottles/ ---"
-          ls -la bottles/ 2>/dev/null || echo "bottles/ is empty or missing"
-          find bottles/ -name "*.bottle*" 2>/dev/null || echo "No .bottle files found"
-
       - name: Extract version
         id: meta
         run: |
@@ -83,7 +88,7 @@ jobs:
         with:
           tag_name: zorac-${{ steps.meta.outputs.version }}
           name: "Bottles for zorac ${{ steps.meta.outputs.version }}"
-          files: bottles/*.bottle.tar.gz
+          files: bottles/*.bottle*.tar.gz
           make_latest: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -31,11 +31,13 @@ def main():
     tags: dict[str, str] = {}
     root_url: str | None = None
 
-    for json_file in sorted(bottles_dir.glob("*.bottle.json")):
+    rebuild = 0
+    for json_file in sorted(bottles_dir.glob("*.bottle*.json")):
         data = json.loads(json_file.read_text())
         formula_data = next(iter(data.values()))
         bottle = formula_data["bottle"]
         root_url = root_url or bottle["root_url"]
+        rebuild = max(rebuild, bottle.get("rebuild", 0))
         for tag, info in bottle["tags"].items():
             tags[tag] = info["sha256"]
 
@@ -50,7 +52,10 @@ def main():
     )
     max_len = max(len(t) for t in sorted_tags)
 
-    lines = ["  bottle do", f'    root_url "{root_url}"']
+    lines = ["  bottle do"]
+    if rebuild:
+        lines.append(f"    rebuild {rebuild}")
+    lines.append(f'    root_url "{root_url}"')
     for tag in sorted_tags:
         pad = " " * (max_len - len(tag))
         lines.append(
