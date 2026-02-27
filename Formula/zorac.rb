@@ -1,16 +1,9 @@
 class Zorac < Formula
   desc "Self-hosted local LLM chat client for vLLM inference servers"
   homepage "https://github.com/chris-colinsky/zorac"
-  url "https://files.pythonhosted.org/packages/8d/05/512c4d0d270e615e73336b7acc2ea7afb5adb50a472065e376a1a7117b0b/zorac-1.4.0.tar.gz"
-  sha256 "185a8c82ab9776d98cb821f93746765aaee2a5217b36534a83b6c3c968ec245d"
+  url "https://files.pythonhosted.org/packages/0b/a8/e051b2bcab4f227d885350378caf071ade08572ff844428d9eb03a51b758/zorac-1.4.1.tar.gz"
+  sha256 "a03e4c175d5b94718446536a546544c9debf30348767c9ecfc6cd41fa8510122"
   license "MIT"
-
-  bottle do
-    rebuild 2
-    root_url "https://github.com/chris-colinsky/homebrew-zorac/releases/download/zorac-1.4.0"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "3df138ebea0d0b22a390bd41654e6de41b8505d043a0ad0f1c26ba44604410e9"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "5a151146ff4de20a654081f52e32ba34e644ea81f1d0edccab7d61378082a80c"
-  end
 
   depends_on "python@3.13"
   depends_on "rust" => :build
@@ -30,7 +23,7 @@ class Zorac < Formula
     system libexec/"bin/pip", "install", "--upgrade", "pip"
     system libexec/"bin/pip", "install",
            "--no-binary", "jiter,pydantic-core,tiktoken",
-           "zorac==1.4.0"
+           "zorac==1.4.1"
 
     (bin/"zorac").write <<~EOS
       #!/bin/bash
@@ -42,4 +35,3 @@ class Zorac < Formula
     assert_match "zorac", shell_output("#{bin}/zorac --help")
   end
 end
-
