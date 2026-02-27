@@ -13,15 +13,17 @@ class Zorac < Formula
   def install
     python = Formula["python@3.13"].opt_bin/"python3.13"
 
-    # jiter (a Rust extension bundled with openai) ships without
-    # -headerpad_max_install_names, so Homebrew's post-install relocation
-    # step fails trying to rewrite its @rpath dylib ID to a long absolute path.
-    # Building jiter from source with this linker flag resolves the issue.
+    # Several Rust extension wheels (jiter, pydantic-core, tiktoken) ship without
+    # -headerpad_max_install_names, so Homebrew's post-install relocation step
+    # fails trying to rewrite their @rpath dylib IDs to long absolute paths.
+    # Building them from source with this linker flag resolves the issue.
     ENV.append "RUSTFLAGS", "-C link-arg=-headerpad_max_install_names"
 
     system python, "-m", "venv", libexec
     system libexec/"bin/pip", "install", "--upgrade", "pip"
-    system libexec/"bin/pip", "install", "--no-binary", "jiter", "zorac==1.4.0"
+    system libexec/"bin/pip", "install",
+           "--no-binary", "jiter,pydantic-core,tiktoken",
+           "zorac==1.4.0"
 
     (bin/"zorac").write <<~EOS
       #!/bin/bash
