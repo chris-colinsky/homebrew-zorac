@@ -41,3 +41,4 @@ class Zorac < Formula
     assert_match "zorac", shell_output("#{bin}/zorac --help")
   end
 end
+

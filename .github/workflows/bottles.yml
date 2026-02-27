@@ -24,7 +24,7 @@ jobs:
       - name: Extract version and root URL
         id: meta
         run: |
-          VERSION=$(grep -oP '(?<=zorac-)\d+\.\d+\.\d+(?=\.tar\.gz)' Formula/zorac.rb | head -1)
+          VERSION=$(python3 -c "import re; print(re.search(r'zorac-(\d+\.\d+\.\d+)\.tar\.gz', open('Formula/zorac.rb').read()).group(1))")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "root_url=https://github.com/${{ github.repository }}/releases/download/zorac-$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -37,6 +37,8 @@ jobs:
             --json \
             --root-url="${{ steps.meta.outputs.root_url }}" \
             chris-colinsky/zorac/zorac
+          echo "--- Bottle files created ---"
+          ls -la *.bottle* 2>/dev/null || echo "No .bottle files found in $(pwd)"
 
       - name: Upload bottle artifacts
         uses: actions/upload-artifact@v4
@@ -64,10 +66,16 @@ jobs:
           merge-multiple: true
           path: bottles/
 
+      - name: List downloaded bottles
+        run: |
+          echo "--- Contents of bottles/ ---"
+          ls -la bottles/ 2>/dev/null || echo "bottles/ is empty or missing"
+          find bottles/ -name "*.bottle*" 2>/dev/null || echo "No .bottle files found"
+
       - name: Extract version
         id: meta
         run: |
-          VERSION=$(grep -oP '(?<=zorac-)\d+\.\d+\.\d+(?=\.tar\.gz)' Formula/zorac.rb | head -1)
+          VERSION=$(python3 -c "import re; print(re.search(r'zorac-(\d+\.\d+\.\d+)\.tar\.gz', open('Formula/zorac.rb').read()).group(1))")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create release and upload bottles
