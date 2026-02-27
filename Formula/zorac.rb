@@ -1,4 +1,6 @@
 class Zorac < Formula
+  include Language::Python::Virtualenv
+
   desc "Self-hosted local LLM chat client for vLLM inference servers"
   homepage "https://github.com/chris-colinsky/zorac"
   url "https://files.pythonhosted.org/packages/8d/05/512c4d0d270e615e73336b7acc2ea7afb5adb50a472065e376a1a7117b0b/zorac-1.4.0.tar.gz"
@@ -7,22 +9,8 @@ class Zorac < Formula
 
   depends_on "python@3.13"
 
-  skip_clean "libexec"
-
   def install
-    python = Formula["python@3.13"].opt_bin/"python3.13"
-
-    system python, "-m", "venv", libexec
-    system libexec/"bin/pip", "install", "--upgrade", "pip"
-    
-    # We add --no-compile to prevent pip from creating pyc files that 
-    # Homebrew might also try (and fail) to relocate.
-    system libexec/"bin/pip", "install", "zorac==1.4.0"
-
-    (bin/"zorac").write <<~EOS
-      #!/bin/bash
-      exec "#{libexec}/bin/zorac" "$@"
-    EOS
+    virtualenv_install_with_resources
   end
 
   def relocate_binaries?
