@@ -28,9 +28,6 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "root_url=https://github.com/${{ github.repository }}/releases/download/zorac-$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Override tap formula with local checkout
-        run: cp Formula/zorac.rb "$(brew --repo chris-colinsky/zorac)/Formula/zorac.rb"
-
       - name: Install for bottling
         run: brew install --build-bottle chris-colinsky/zorac/zorac
 
