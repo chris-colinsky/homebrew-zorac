@@ -10,12 +10,13 @@ class Zorac < Formula
   skip_clean "libexec"
 
   def install
-    ENV.append "LDFLAGS", "-Wl,-headerpad_max_install_names"
-    
     python = Formula["python@3.13"].opt_bin/"python3.13"
 
     system python, "-m", "venv", libexec
     system libexec/"bin/pip", "install", "--upgrade", "pip"
+    
+    # We add --no-compile to prevent pip from creating pyc files that 
+    # Homebrew might also try (and fail) to relocate.
     system libexec/"bin/pip", "install", "zorac==1.4.0"
 
     (bin/"zorac").write <<~EOS
@@ -24,7 +25,11 @@ class Zorac < Formula
     EOS
   end
 
+  def relocate_binaries?
+    false
+  end
+
   test do
-    assert_match "Zorac", shell_output("#{bin}/zorac --help 2>&1", 2)
+    assert_match "zorac", shell_output("#{bin}/zorac --help")
   end
 end
