@@ -7,14 +7,6 @@ class Zorac < Formula
 
   depends_on "python@3.13"
 
-  # Skip relocation of native extensions in the venv (e.g. jiter, which is
-  # compiled without sufficient Mach-O header padding for Homebrew to rewrite
-  # dylib IDs). Python loads .so files via dlopen() using the full path, so
-  # @rpath-based IDs work fine and relocation is unnecessary.
-  bottle do
-    skip_relocation
-  end
-
   skip_clean "libexec"
 
   def install
