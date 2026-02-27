@@ -83,6 +83,17 @@ jobs:
           VERSION=$(python3 -c "import re; print(re.search(r'zorac-(\d+\.\d+\.\d+)\.tar\.gz', open('Formula/zorac.rb').read()).group(1))")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Rename bottles for download URL compatibility
+        run: |
+          # brew bottle creates "formula--version.arch.bottle.tar.gz" (double dash)
+          # but Homebrew downloads "formula-version.arch.bottle.tar.gz" (single dash)
+          cd bottles
+          for f in *--*.bottle*.tar.gz; do
+            [ -f "$f" ] && mv "$f" "${f/--/-}"
+          done
+          echo "--- Renamed bottles ---"
+          ls *.bottle*.tar.gz 2>/dev/null || echo "No bottle tarballs found"
+
       - name: Create release and upload bottles
         uses: softprops/action-gh-release@v2
         with:
