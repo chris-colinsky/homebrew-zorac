@@ -10,6 +10,8 @@ class Zorac < Formula
   skip_clean "libexec"
 
   def install
+    ENV.append "LDFLAGS", "-Wl,-headerpad_max_install_names"
+    
     python = Formula["python@3.13"].opt_bin/"python3.13"
 
     system python, "-m", "venv", libexec
