@@ -6,9 +6,10 @@ class Zorac < Formula
   license "MIT"
 
   bottle do
+    rebuild 1
     root_url "https://github.com/chris-colinsky/homebrew-zorac/releases/download/zorac-1.4.0"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "717c0365fabe04a73e5c68ff4eb2c7e441e049299bea149806a2510eb607e694"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "d1436f734a5283ddb43bbc66a2b6a74f91e4f00645df081526f4ac7f52016b3f"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "29138057ab0e00f017737851102abfe3c6116301b5f0858b7f9cb26db43f0f4c"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma:  "75850c9aaac7d6dfa438c0a1fb088beae5729a3fa0aa3f8ca64fa9ce68f5ea65"
   end
 
   depends_on "python@3.13"
